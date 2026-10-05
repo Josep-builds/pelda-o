@@ -1,5 +1,9 @@
 # DECISIONS
 
+## 2026-10-05 — Deploy 1
+
+- Live at **https://pelda-o.vercel.app**. Google login confirmed working there (Supabase Auth → URL Configuration has both the Vercel URL and `localhost:3000` redirect URIs registered).
+
 ## 2026-10-05 — F1: Scaffold + Google login + DB
 
 - Scaffolded Next.js 16 (App Router, TypeScript, Tailwind v4) via `create-next-app` directly in the repo root.
