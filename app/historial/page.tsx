@@ -45,6 +45,20 @@ export default async function Historial() {
             Pedir verificación
           </Link>
         </div>
+
+        <Link
+          href="/historial/compartir"
+          className="flex items-center justify-center gap-2 rounded-full bg-[#1E3A5F] px-6 py-3 text-base font-semibold text-white"
+        >
+          Compartir con un empleador
+        </Link>
+
+        <Link
+          href="/historial/exportar"
+          className="text-center text-sm font-medium text-[#1E3A5F] underline-offset-2 hover:underline"
+        >
+          Descargar mi historial
+        </Link>
       </div>
     </main>
   );

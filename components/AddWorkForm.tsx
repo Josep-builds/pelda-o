@@ -58,7 +58,13 @@ function parseNumberOrNull(value: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export function AddWorkForm({ ownerId }: { ownerId: string }) {
+export function AddWorkForm({
+  ownerId,
+  replacesId = null,
+}: {
+  ownerId: string;
+  replacesId?: string | null;
+}) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -146,6 +152,7 @@ export function AddWorkForm({ ownerId }: { ownerId: string }) {
         hours: parseNumberOrNull(fields.hours),
       },
       evidencePath,
+      replacesId,
     };
 
     try {

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createPlatformHistoryEntrySchema } from "@/lib/entries/schema";
+import { createPlatformHistoryEntry } from "@/lib/entries/service";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -19,26 +20,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { fields, evidencePath } = parsed.data;
+  const { fields, evidencePath, replacesId } = parsed.data;
 
-  const { data: entry, error } = await supabase
-    .from("entries")
-    .insert({
-      owner_id: user.id,
-      type: "platform_history",
-      verification: "ai_read_self_confirmed",
-      fields: { ...fields, evidence_path: evidencePath },
-    })
-    .select("id")
-    .single();
+  const result = await createPlatformHistoryEntry(
+    supabase,
+    user.id,
+    fields,
+    evidencePath,
+    replacesId ?? null
+  );
 
-  if (error) {
-    console.error("Failed to insert entry:", error);
-    return NextResponse.json(
-      { error: "No se pudo guardar. Intenta de nuevo." },
-      { status: 500 }
-    );
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
-  return NextResponse.json({ id: entry.id });
+  return NextResponse.json({ id: result.id });
 }

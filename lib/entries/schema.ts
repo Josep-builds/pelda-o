@@ -48,4 +48,5 @@ export const extractRequestSchema = z.object({
 export const createPlatformHistoryEntrySchema = z.object({
   fields: platformHistoryFieldsSchema,
   evidencePath: z.string().trim().min(1).max(500).nullable(),
+  replacesId: z.string().trim().uuid().nullable().optional(),
 });
