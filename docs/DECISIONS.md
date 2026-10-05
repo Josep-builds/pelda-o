@@ -1,5 +1,16 @@
 # DECISIONS
 
+## 2026-10-05 — F2: Add past work from a screenshot (Gemini extraction)
+
+- Upload goes straight from the browser to Supabase Storage (`evidence/<owner_id>/<uuid>.<ext>`), not through our server — keeps large images off the Next.js/Vercel request-body path entirely. The server only ever receives the storage **path** and downloads the bytes itself (server-to-server, no body-size limit concern) before calling Gemini.
+- Image type/size is enforced three times: client-side before upload (fast UX), bucket-level via `storage.buckets.file_size_limit` / `allowed_mime_types` (new migration `0002_evidence_bucket_limits.sql` — needs to be run in Supabase SQL editor), and again server-side in `/api/entries/extract` (defense in depth, since a client could call Supabase Storage directly and skip our form).
+- Gemini call uses `@google/genai`'s `responseSchema` (not just a prompt instruction) to force structured JSON output; model id defaults to `gemini-2.0-flash`, overridable via `GEMINI_MODEL`.
+- Three fallback layers, matching the hard rule that the LLM must never invent a value: (1) no `GEMINI_API_KEY` → `SIMULADO` tag with invented sample data; (2) Gemini call throws → same `SIMULADO` fallback; (3) Gemini responds but the JSON fails Zod validation → empty fields with an `extractionFailed` flag, UI shows "complete los campos a mano" instead of the AI-read tag.
+- `period_start`/`period_end` are kept as free text (not parsed dates) — screenshots show periods like "mar 2024", and strict date parsing would reject valid reads for no benefit here.
+- `/historial` now lists entries (`status = 'active'`, newest first) and the `+ Agregar trabajo` card links to the new flow.
+
+**Needs before testing:** run `supabase/migrations/0002_evidence_bucket_limits.sql` in the Supabase SQL editor (bucket-level size/type limits weren't set in the F1 migration).
+
 ## 2026-10-05 — Deploy 1
 
 - Live at **https://pelda-o.vercel.app**. Google login confirmed working there (Supabase Auth → URL Configuration has both the Vercel URL and `localhost:3000` redirect URIs registered).

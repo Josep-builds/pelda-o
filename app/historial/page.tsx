@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/SignOutButton";
+import { EntryCard, type Entry } from "@/components/EntryCard";
 
 export default async function Historial() {
   const supabase = await createClient();
@@ -10,6 +12,13 @@ export default async function Historial() {
     redirect("/");
   }
 
+  const { data: entries } = await supabase
+    .from("entries")
+    .select("id, type, fields, verification, created_at")
+    .eq("owner_id", data.user.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+
   return (
     <main className="flex min-h-screen flex-1 flex-col gap-6 bg-[#FFF8F0] px-6 py-10">
       <header className="flex items-center justify-between">
@@ -17,13 +26,17 @@ export default async function Historial() {
         <SignOutButton />
       </header>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-[#1E3A5F]/20 py-16 text-center">
-        <p className="text-base text-[#44403C]">
-          Todavía no tienes trabajos agregados.
-        </p>
-        <p className="text-sm text-[#78716C]">
-          Pronto podrás agregar tu primer trabajo aquí.
-        </p>
+      <div className="flex flex-col gap-4">
+        {(entries as Entry[] | null)?.map((entry) => (
+          <EntryCard key={entry.id} entry={entry} />
+        ))}
+
+        <Link
+          href="/historial/agregar"
+          className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#1E3A5F]/20 py-10 text-base font-medium text-[#1E3A5F]"
+        >
+          + Agregar trabajo
+        </Link>
       </div>
     </main>
   );
