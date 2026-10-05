@@ -31,12 +31,20 @@ export default async function Historial() {
           <EntryCard key={entry.id} entry={entry} />
         ))}
 
-        <Link
-          href="/historial/agregar"
-          className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#1E3A5F]/20 py-10 text-base font-medium text-[#1E3A5F]"
-        >
-          + Agregar trabajo
-        </Link>
+        <div className="grid grid-cols-2 gap-3">
+          <Link
+            href="/historial/agregar"
+            className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#1E3A5F]/20 py-10 text-center text-base font-medium text-[#1E3A5F]"
+          >
+            + Agregar trabajo
+          </Link>
+          <Link
+            href="/historial/pedir-verificacion"
+            className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#1E3A5F]/20 py-10 text-center text-base font-medium text-[#1E3A5F]"
+          >
+            Pedir verificación
+          </Link>
+        </div>
       </div>
     </main>
   );
