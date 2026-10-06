@@ -20,14 +20,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { fields, evidencePath, replacesId } = parsed.data;
+  const { fields, evidencePath, replacesId, source } = parsed.data;
 
   const result = await createPlatformHistoryEntry(
     supabase,
     user.id,
     fields,
     evidencePath,
-    replacesId ?? null
+    replacesId ?? null,
+    source
   );
 
   if ("error" in result) {

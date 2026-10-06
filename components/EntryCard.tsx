@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DIMENSION_LABELS, platformHistoryTag, verificationLabel } from "@/lib/entries/labels";
 
 type PlatformHistoryFields = {
   platform?: string | null;
@@ -13,6 +14,7 @@ type PlatformHistoryFields = {
   on_time_pct?: number | null;
   rating?: number | null;
   hours?: number | null;
+  source?: "gemini" | "simulado" | "manual";
 };
 
 type AttestationFields = {
@@ -27,19 +29,6 @@ export type Entry = {
   fields: PlatformHistoryFields & AttestationFields;
   verification: string;
   created_at: string;
-};
-
-const VERIFICATION_LABELS: Record<string, string> = {
-  ai_read_self_confirmed: "Leído por IA · confirmado por mí",
-  observer_attested: "Verificado por quien lo vio",
-};
-
-const DIMENSION_LABELS: Record<string, string> = {
-  puntualidad: "Puntualidad",
-  precision: "Precisión",
-  ritmo: "Ritmo",
-  trato: "Trato",
-  instrucciones: "Instrucciones",
 };
 
 function platformHistorySummary(fields: PlatformHistoryFields) {
@@ -66,8 +55,8 @@ export function EntryCard({ entry }: { entry: Entry }) {
   const router = useRouter();
   const [hiding, setHiding] = useState(false);
 
-  const tag = VERIFICATION_LABELS[entry.verification] ?? entry.verification;
   const isAttestation = entry.type === "observer_attestation";
+  const tag = isAttestation ? verificationLabel(entry.verification) : platformHistoryTag(entry.fields);
 
   async function handleHide() {
     if (!confirm("¿Ocultar esta entrada? Dejará de aparecer en nuevos historiales compartidos.")) {
@@ -96,7 +85,11 @@ export function EntryCard({ entry }: { entry: Entry }) {
       )}
       <span
         className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold ${
-          isAttestation ? "bg-green-100 text-green-800" : "bg-stone-100 text-stone-700"
+          isAttestation
+            ? "bg-green-100 text-green-800"
+            : entry.fields.source === "simulado"
+              ? "bg-amber-100 text-amber-900"
+              : "bg-stone-100 text-stone-700"
         }`}
       >
         {tag}

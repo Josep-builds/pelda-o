@@ -153,6 +153,7 @@ export function AddWorkForm({
       },
       evidencePath,
       replacesId,
+      source: extractionFailed ? ("manual" as const) : (source ?? "manual"),
     };
 
     try {

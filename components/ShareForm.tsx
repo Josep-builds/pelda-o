@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { pluralize } from "@/lib/entries/labels";
 
 type Entry = {
   id: string;
@@ -161,7 +162,7 @@ export function ShareForm({ entries }: { entries: Entry[] }) {
               ? "Revocado"
               : expired
                 ? "Vencido"
-                : `${link.entry_ids.length} entradas · activo`;
+                : `${link.entry_ids.length} ${pluralize(link.entry_ids.length, "entrada", "entradas")} · activo`;
             return (
               <div key={link.id} className="flex items-center justify-between text-sm">
                 <span className="text-[#44403C]">{statusLabel}</span>

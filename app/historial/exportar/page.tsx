@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ExportActions } from "@/components/ExportActions";
 import { DeleteAccountButton } from "@/components/DeleteAccountButton";
+import { platformHistoryTag, verificationLabel, type PlatformHistoryFieldsSource } from "@/lib/entries/labels";
 
 export default async function Exportar() {
   const supabase = await createClient();
@@ -42,7 +43,11 @@ export default async function Exportar() {
                     .filter(Boolean)
                     .join(" · ")}
             </p>
-            <p className="text-sm text-[#78716C]">{entry.verification}</p>
+            <p className="text-sm text-[#78716C]">
+              {entry.type === "observer_attestation"
+                ? verificationLabel(entry.verification)
+                : platformHistoryTag(entry.fields as PlatformHistoryFieldsSource)}
+            </p>
           </div>
         ))}
       </div>

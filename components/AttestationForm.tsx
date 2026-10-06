@@ -10,16 +10,16 @@ const DIMENSIONS: Array<{ key: string; label: string }> = [
   { key: "instrucciones", label: "Seguimiento de instrucciones" },
 ];
 
-type Scores = Record<string, number>;
+type Scores = Record<string, number | null>;
 type Notes = Record<string, string>;
 
-const EMPTY_SCORES: Scores = Object.fromEntries(DIMENSIONS.map((d) => [d.key, 3]));
+const EMPTY_SCORES: Scores = Object.fromEntries(DIMENSIONS.map((d) => [d.key, null]));
 const EMPTY_NOTES: Notes = Object.fromEntries(DIMENSIONS.map((d) => [d.key, ""]));
 
 export function AttestationForm({ token, context }: { token: string; context: string | null }) {
   const [scores, setScores] = useState<Scores>(EMPTY_SCORES);
   const [notes, setNotes] = useState<Notes>(EMPTY_NOTES);
-  const [rehire, setRehire] = useState<"si" | "no" | "depende">("si");
+  const [rehire, setRehire] = useState<"si" | "no" | "depende" | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -29,11 +29,21 @@ export function AttestationForm({ token, context }: { token: string; context: st
     setError(null);
 
     for (const d of DIMENSIONS) {
+      if (scores[d.key] == null) {
+        setError(`Elige una calificación para "${d.label}".`);
+        setSubmitting(false);
+        return;
+      }
       if (!notes[d.key]?.trim()) {
         setError(`Agrega una nota corta para "${d.label}".`);
         setSubmitting(false);
         return;
       }
+    }
+    if (!rehire) {
+      setError('Responde "¿Lo volverías a contratar?".');
+      setSubmitting(false);
+      return;
     }
 
     try {

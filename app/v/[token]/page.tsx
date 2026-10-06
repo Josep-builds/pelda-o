@@ -1,4 +1,10 @@
 import { getShareView } from "@/lib/shares/service";
+import {
+  DIMENSION_LABELS,
+  platformHistoryTag,
+  verificationLabel,
+  type PlatformHistoryFieldsSource,
+} from "@/lib/entries/labels";
 
 const STATUS_MESSAGES: Record<string, string> = {
   not_found: "Enlace no válido.",
@@ -6,13 +12,13 @@ const STATUS_MESSAGES: Record<string, string> = {
   expired: "Enlace vencido.",
 };
 
-const VERIFICATION_LABELS: Record<string, string> = {
-  ai_read_self_confirmed: "Leído por IA · confirmado por el trabajador",
-  observer_attested: "Verificado por quien lo vio",
-};
-
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "America/Mexico_City",
+  });
 }
 
 export default async function VerEnlace({
@@ -53,7 +59,7 @@ export default async function VerEnlace({
                 {entry.fields.dimensions && (
                   <p className="text-sm text-[#78716C]">
                     {Object.entries(entry.fields.dimensions as Record<string, number>)
-                      .map(([k, v]) => `${k} ${v}`)
+                      .map(([k, v]) => `${DIMENSION_LABELS[k] ?? k} ${v}`)
                       .join(" · ")}
                   </p>
                 )}
@@ -69,7 +75,9 @@ export default async function VerEnlace({
 
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex w-fit items-center rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">
-                {VERIFICATION_LABELS[entry.verification] ?? entry.verification}
+                {entry.type === "observer_attestation"
+                  ? verificationLabel(entry.verification)
+                  : platformHistoryTag(entry.fields as PlatformHistoryFieldsSource)}
               </span>
               {entry.signatureValid !== null && (
                 <span

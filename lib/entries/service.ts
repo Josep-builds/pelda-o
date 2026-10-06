@@ -16,7 +16,8 @@ export async function createPlatformHistoryEntry(
   ownerId: string,
   fields: PlatformHistoryFields,
   evidencePath: string | null,
-  replacesId: string | null
+  replacesId: string | null,
+  source: "gemini" | "simulado" | "manual"
 ) {
   if (replacesId) {
     // Defense in depth: confirm the entry being replaced is actually the
@@ -41,7 +42,7 @@ export async function createPlatformHistoryEntry(
       owner_id: ownerId,
       type: "platform_history",
       verification: "ai_read_self_confirmed",
-      fields: { ...fields, evidence_path: evidencePath },
+      fields: { ...fields, evidence_path: evidencePath, source },
       replaces_id: replacesId,
     })
     .select("id")
