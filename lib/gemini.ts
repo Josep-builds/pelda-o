@@ -5,7 +5,10 @@ import {
   type PlatformHistoryFields,
 } from "@/lib/entries/schema";
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+// "gemini-2.0-flash" was retired by Google (404s as of Oct 2026). Using
+// the "-latest" alias instead of a pinned version avoids hardcoding a
+// model id Google can retire out from under us again.
+const DEFAULT_MODEL = "gemini-flash-latest";
 
 const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
