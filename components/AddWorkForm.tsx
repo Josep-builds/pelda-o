@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -78,10 +78,48 @@ export function AddWorkForm({
   const [extractionFailed, setExtractionFailed] = useState(false);
   const [evidencePath, setEvidencePath] = useState<string | null>(null);
 
-  async function handleUpload() {
-    const file = fileInputRef.current?.files?.[0];
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  function handleFileChange() {
+    const file = fileInputRef.current?.files?.[0] ?? null;
+    setError(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+
     if (!file) {
-      setError("Elige una imagen primero.");
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+    if (!ALLOWED_EVIDENCE_MIME_TYPES.includes(file.type as never)) {
+      setError("Solo se permiten imágenes JPG, PNG o WEBP.");
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_EVIDENCE_FILE_BYTES) {
+      setError("El archivo es muy grande. El máximo es 5 MB.");
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
+  async function handleUpload() {
+    const file = selectedFile;
+    if (!file) {
+      setError("Elige una foto primero.");
       return;
     }
     if (!ALLOWED_EVIDENCE_MIME_TYPES.includes(file.type as never)) {
@@ -182,16 +220,38 @@ export function AddWorkForm({
         <p className="text-base text-[#44403C]">
           Sube una captura de tus ganancias o un recibo semanal. La IA leerá los datos y tú los confirmas.
         </p>
+
         <input
           ref={fileInputRef}
+          id="evidence-file-input"
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          className="text-sm"
+          onChange={handleFileChange}
+          className="sr-only"
         />
+
+        <label
+          htmlFor="evidence-file-input"
+          className="flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-[#1E3A5F] px-6 py-3 text-base font-semibold text-[#1E3A5F]"
+        >
+          📷 Elegir foto de tus ganancias
+        </label>
+
+        {selectedFile && (
+          <div className="flex items-center gap-3 rounded-xl bg-stone-100 p-3">
+            {previewUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
+            )}
+            <p className="break-all text-sm text-[#44403C]">{selectedFile.name}</p>
+          </div>
+        )}
+
         {error && <p className="text-sm text-red-600">{error}</p>}
+
         <button
           onClick={handleUpload}
-          disabled={uploading}
+          disabled={uploading || !selectedFile}
           className="inline-flex items-center justify-center rounded-full bg-[#1E3A5F] px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-[#15293f] disabled:opacity-60"
         >
           {uploading ? "Leyendo..." : "Subir y leer con IA"}
