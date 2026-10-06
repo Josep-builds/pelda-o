@@ -39,6 +39,10 @@ export function RequestAttestationForm() {
     return (
       <div className="flex flex-col gap-4 rounded-2xl border border-[#1E3A5F]/15 bg-white p-6">
         <p className="text-base text-[#44403C]">Enlace listo. Expira en 72 horas.</p>
+        <p className="text-sm text-[#78716C]">
+          Mándalo a alguien que te vio trabajar (encargado, supervisor, cliente). No a amigos ni
+          familia: su firma es lo que da valor a tu historial.
+        </p>
         <a
           href={`https://wa.me/?text=${message}`}
           target="_blank"

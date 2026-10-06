@@ -38,6 +38,10 @@ export default async function Home({
       )}
 
       <LoginButton redirectTo={redirectTo} />
+
+      <p className="max-w-sm text-sm text-[#78716C]">
+        Verás un aviso de Google porque Peldaño está en pruebas; es seguro continuar.
+      </p>
     </main>
   );
 }
