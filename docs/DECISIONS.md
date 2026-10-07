@@ -1,5 +1,23 @@
 # DECISIONS
 
+## 2026-10-07 — Decision: demo recorded with SIMULADO, Gemini access is account-blocked
+
+Confirmed root cause of bug #1 (Gemini always falling back to SIMULADO): the Google account **josep.builds** is blocked at the account level for Gemini API generation calls, not at the project level. Tested two separate Google Cloud projects' API keys (the original one, and a fresh key created in a brand-new project, "peldano-ia") — both return the identical error on every current model:
+
+```json
+{
+  "error": {
+    "code": 403,
+    "message": "Your project has been denied access. Please contact support.",
+    "status": "PERMISSION_DENIED"
+  }
+}
+```
+
+Both keys' `GET /v1beta/models` (list models) call succeeds with 200 — only `generateContent` (the actual inference call) is denied. Since a brand-new project under the same account hit the exact same block, this rules out a one-off project-level flag and points at the account itself. Not fixable from this repo; needs either Google support (the error message says so directly) or a Gemini API key from a different Google account.
+
+**Decision:** record the demo using the SIMULADO fallback path rather than block on Google resolving this. The app already does this correctly and visibly — every SIMULADO-sourced field is labeled, never silently presented as a real AI read (see the 2026-10-06 entry below, bug #2's fix: `lib/entries/labels.ts#platformHistoryTag()` shows "SIMULADO · dato de ejemplo" on the saved entry, in `/historial`, `/historial/exportar`, and the public `/v/[token]` page). This is the intended degraded-mode behavior per PACKET's hard rule ("If Gemini fails or there is no key, return a simulated result labeled SIMULADO"), not a workaround — the demo will show the fallback working as designed, not a broken feature.
+
 ## 2026-10-06 — Bugs found in manual testing on production (iPad, full flow)
 
 User ran the complete flow end to end on `https://pelda-o.vercel.app` from an iPad. Found 8 issues. All fixed except #1, which isn't a code problem.
